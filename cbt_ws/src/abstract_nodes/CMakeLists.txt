@@ -26,7 +26,8 @@ add_library(abstract_nodes SHARED
         src/abstract_node_description.cpp
         include/abstract_service.hpp
         include/abstract_service_client.hpp
-        include/abstract_request.hpp)
+        include/abstract_request.hpp
+        include/abstract_action_server.hpp)
 
 target_link_libraries(abstract_nodes PUBLIC
         ${rclcpp_LIBRARIES})
@@ -50,4 +51,7 @@ ament_package()
 
 add_executable(example_abstract_service example/example_abstract_srvcli.cpp)
 target_link_libraries(example_abstract_service PUBLIC abstract_nodes
+        ${example_interfaces_LIBRARIES})
+add_executable(example_abstract_action example/example_abstract_action.cpp)
+target_link_libraries(example_abstract_action PUBLIC abstract_nodes
         ${example_interfaces_LIBRARIES})

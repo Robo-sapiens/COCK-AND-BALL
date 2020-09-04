@@ -10,6 +10,7 @@
 
 using namespace std::chrono_literals;
 
+namespace cock_and_ball {
 template<class ServiceT>
 class AbstractServiceClient : public AbstractNode {
  public:
@@ -19,7 +20,7 @@ class AbstractServiceClient : public AbstractNode {
 
     AbstractServiceClient(AbstractNodeDescription::SharedPtr description,
                           rclcpp::executor::Executor::SharedPtr executor,
-                          CBType cb_group_type)
+                          CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
     SharedFuture request(RequestSharedPtr request_shared_ptr, RequestCBType cb = {}) {
         for (int i = 0; i < Constants::RetryTimes; ++i) {
@@ -31,20 +32,19 @@ class AbstractServiceClient : public AbstractNode {
         if (!_client->service_is_ready()) {
             throw std::runtime_error("service is not ready");  // TODO: base exception and namespace
         }
-        return _client->async_send_request(request_shared_ptr->impl(), cb);
-//        auto future{_client->async_send_request(request, cb)};
-//        return future;
-//        while (true) {
-//            if (future.wait_for(10ms) == std::future_status::ready) {
-//                return future.get();
-//            }
-//        }
-//    }
+        auto future{_client->async_send_request(request_shared_ptr->impl(), cb)};
+        return future;
+        while (true) { // TODO: check 
+            if (future.wait_for(10ms) == std::future_status::ready) {
+                return future.get(); // or just wait()?
+            }
+        }
     }
  protected:
     typename rclcpp::Client<ServiceT>::SharedPtr _client{
-        _node->create_client<ServiceT>(_description->server_name(), _service_qos_profile, _cb_group)
+        _node->create_client<ServiceT>(_description->name(), _service_qos_profile, _cb_group)
     };
 };
+}  // namespace cock_and_ball
 
 #endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_CLIENT_HPP_

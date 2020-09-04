@@ -7,7 +7,8 @@
 
 #include <memory>
 
-template <class RequestT>
+namespace cock_and_ball {
+template<class RequestT>
 class AbstractRequest {
  public:
     using SharedPtr = std::shared_ptr<AbstractRequest<RequestT>>;
@@ -19,6 +20,7 @@ class AbstractRequest {
  protected:
     typename RequestT::SharedPtr _request{std::make_shared<RequestT>()};
 };
+}  // namespace cock_and_ball
 
 
 #endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_REQUEST_HPP_
