@@ -8,6 +8,7 @@
 #include <example_interfaces/srv/add_two_ints.hpp>
 
 using example_interfaces::srv::AddTwoInts;
+using namespace cock_and_ball;
 
 class AddTwoIntsDescription : public AbstractNodeDescription {
  public:
@@ -22,7 +23,7 @@ class AddTwoIntsService : public AbstractService<AddTwoInts> {
  public:
     AddTwoIntsService(AbstractNodeDescription::SharedPtr description,
                       rclcpp::executor::Executor::SharedPtr executor,
-                      CBType cb_group_type)
+                      CBGrType cb_group_type)
         : AbstractService(description, executor, cb_group_type) {}
     void callback(std::shared_ptr<AddTwoInts::Request> request,
                   std::shared_ptr<AddTwoInts::Response> response) override {
@@ -37,7 +38,7 @@ class AddTwoIntsClient : public AbstractServiceClient<AddTwoInts> {
  public:
     AddTwoIntsClient(AbstractNodeDescription::SharedPtr description,
                      rclcpp::executor::Executor::SharedPtr executor,
-                     CBType cb_group_type)
+                     CBGrType cb_group_type)
         : AbstractServiceClient(description, executor, cb_group_type) {}
 };
 
@@ -56,12 +57,12 @@ int main(int argc, char **argv) {
     AddTwoIntsService service{
         std::make_shared<AddTwoIntsDescription>(),
         executor,
-        AbstractNode::CBType::MutuallyExclusive
+        AbstractNode::CBGrType::MutuallyExclusive
     };
     AddTwoIntsClient client{
         std::make_shared<AddTwoIntsDescription>("me"),
         executor,
-        AbstractNode::CBType::MutuallyExclusive
+        AbstractNode::CBGrType::MutuallyExclusive
     };
     auto future = client.request(std::make_shared<AddTwoIntsRequest>(10, 15),
                                  [&client](AddTwoIntsClient::SharedFuture future) {

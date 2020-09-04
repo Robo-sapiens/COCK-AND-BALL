@@ -7,12 +7,13 @@
 
 #include "abstract_node.h"
 
+namespace cock_and_ball {
 template<class ServiceT>
 class AbstractService : public AbstractNode {
  public:
     AbstractService(AbstractNodeDescription::SharedPtr description,
                     rclcpp::executor::Executor::SharedPtr executor,
-                    CBType cb_group_type)
+                    CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
 
  protected:
@@ -20,7 +21,7 @@ class AbstractService : public AbstractNode {
                           std::shared_ptr<typename ServiceT::Response> response) = 0;
 
     typename rclcpp::Service<ServiceT>::SharedPtr _service{_node->create_service<ServiceT>(
-        _description->server_name(),
+        _description->name(),
         [this](std::shared_ptr<rmw_request_id_t> request_header,
                std::shared_ptr<typename ServiceT::Request> request,
                std::shared_ptr<typename ServiceT::Response> response) {
@@ -31,5 +32,6 @@ class AbstractService : public AbstractNode {
         _cb_group)
     };
 };
+}  // namespace cock_and_ball
 
 #endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_HPP_

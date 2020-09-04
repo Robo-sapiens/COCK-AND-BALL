@@ -9,18 +9,20 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace cock_and_ball {
 namespace Constants {
-    constexpr short RetryTimes{100};
+constexpr short RetryTimes{100};
 }  // constants
 
 class AbstractNode {
  public:
     using SharedPtr = std::shared_ptr<AbstractNode>;
+    using CBGrType = rclcpp::callback_group::CallbackGroupType;
 
-    using CBType = rclcpp::callback_group::CallbackGroupType;
+    AbstractNode() = delete;
     AbstractNode(AbstractNodeDescription::SharedPtr description,
                  rclcpp::executor::Executor::SharedPtr executor,
-                 CBType cb_group_type = CBType::MutuallyExclusive);
+                 CBGrType cb_group_type = CBGrType::MutuallyExclusive);
 
     rclcpp::Logger logger() const;
     void debug(const std::string &log_str) const;
@@ -35,5 +37,6 @@ class AbstractNode {
     rmw_qos_profile_t _service_qos_profile = rmw_qos_profile_services_default;
     rclcpp::callback_group::CallbackGroup::SharedPtr _cb_group;
 };
+}  // namespace cock_and_ball
 
 #endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_NODE_H_

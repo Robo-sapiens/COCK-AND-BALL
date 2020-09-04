@@ -8,8 +8,7 @@
 #include <string>
 #include <memory>
 
-using namespace std::string_literals;
-
+namespace cock_and_ball {
 class AbstractNodeDescription {
  public:
     using SharedPtr = std::shared_ptr<AbstractNodeDescription>;
@@ -21,5 +20,6 @@ class AbstractNodeDescription {
  private:
     std::string _client_user;
 };
+}  // namespace cock_and_ball
 
 #endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_NODE_DESCRIPTION_H_
