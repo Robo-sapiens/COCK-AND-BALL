@@ -7,9 +7,13 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+using rclcpp::Node;
 
-class AbstractService {
-        
+class AbstractService : public Node {
+ public:
+    AbstractService(const std::string &node_name, const rclcpp::NodeOptions &options);
+
+ private:
 };
 
-#endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_H_
+#endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_H_
