@@ -8,9 +8,12 @@
 #include "cock_and_ball_exception.h"
 
 #include <memory>
+#include <functional>
+#include <type_traits>
 
 namespace cock_and_ball {
-template<class StateT> // should have machine
+template<class StateT,
+    const std::string &(StateT::*)() const = &StateT::name>
 class StateMachine {
  public:
     StateMachine() = default;
