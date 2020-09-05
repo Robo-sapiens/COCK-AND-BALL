@@ -28,6 +28,7 @@ add_library(abstract_nodes SHARED
         include/abstract_service_client.hpp
         include/abstract_request.hpp
         include/abstract_action_server.hpp
+        src/robot_executor.cpp
         )
 
 target_link_libraries(abstract_nodes PUBLIC

@@ -5,6 +5,7 @@
 #include "abstract_service.hpp"
 #include "abstract_service_client.hpp"
 #include "abstract_request.hpp"
+#include "robot_executor.h"
 
 #include <example_interfaces/srv/add_two_ints.hpp>
 
@@ -23,7 +24,7 @@ class AddTwoIntsDescription : public AbstractNodeDescription {
 class AddTwoIntsService : public AbstractService<AddTwoInts> {
  public:
     AddTwoIntsService(AbstractNodeDescription::SharedPtr description,
-                      rclcpp::executor::Executor::SharedPtr executor,
+                      RobotExecutor::SharedPtr executor,
                       CBGrType cb_group_type)
         : AbstractService(description, executor, cb_group_type) {}
     void callback(std::shared_ptr<AddTwoInts::Request> request,
@@ -36,7 +37,7 @@ class AddTwoIntsService : public AbstractService<AddTwoInts> {
 class AddTwoIntsClient : public AbstractServiceClient<AddTwoInts> {
  public:
     AddTwoIntsClient(AbstractNodeDescription::SharedPtr description,
-                     rclcpp::executor::Executor::SharedPtr executor,
+                     RobotExecutor::SharedPtr executor,
                      CBGrType cb_group_type)
         : AbstractServiceClient(description, executor, cb_group_type) {}
 };
@@ -52,25 +53,21 @@ class AddTwoIntsRequest : public AbstractRequest<AddTwoInts::Request> {
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
 
-    auto executor_args = rclcpp::executor::ExecutorArgs{};
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>(executor_args);
+    auto robot_executor = std::make_shared<RobotExecutor>();
     AddTwoIntsService service{
         std::make_shared<AddTwoIntsDescription>(),
-        executor,
+        robot_executor,
         AbstractNode::CBGrType::MutuallyExclusive
     };
     AddTwoIntsClient client{
         std::make_shared<AddTwoIntsDescription>("me"),
-        executor,
+        robot_executor,
         AbstractNode::CBGrType::MutuallyExclusive
     };
-    std::thread worker{[&executor]() {
-        executor->spin();
-    }};
     auto result = client.request(std::make_shared<AddTwoIntsRequest>(10, 15));
     client.info(std::to_string(result->sum));
     client.info(std::to_string(client.request(std::make_shared<AddTwoIntsRequest>(1, 5))->sum));
-    worker.join();
+
     rclcpp::shutdown();
     return 0;
 }

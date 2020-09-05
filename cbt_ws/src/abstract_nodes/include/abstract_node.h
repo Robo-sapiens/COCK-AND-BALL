@@ -6,6 +6,7 @@
 #define COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_NODE_H_
 
 #include "abstract_node_description.h"
+#include "robot_executor.h"
 
 #include <rclcpp/node.hpp>
 #include <rclcpp/executors.hpp>
@@ -21,11 +22,10 @@ class AbstractNode {
     using CBGrType = rclcpp::callback_group::CallbackGroupType;
 
     AbstractNode() = delete;
-    AbstractNode(AbstractNodeDescription::SharedPtr description,
-                 rclcpp::executor::Executor::SharedPtr executor,
+    AbstractNode(AbstractNodeDescription::SharedPtr description, RobotExecutor::SharedPtr executor,
                  CBGrType cb_group_type = CBGrType::MutuallyExclusive);
 
-    rclcpp::Logger logger() const;
+    [[nodiscard]] rclcpp::Logger logger() const;
     void debug(const std::string &log_str) const;
     void info(const std::string &log_str) const;
     void warn(const std::string &log_str) const;
@@ -34,7 +34,7 @@ class AbstractNode {
  protected:
     rclcpp::Node::SharedPtr _node;
     AbstractNodeDescription::SharedPtr _description;
-    rclcpp::executor::Executor::SharedPtr _executor;
+    RobotExecutor::WeakPtr _executor;
     rmw_qos_profile_t _service_qos_profile = rmw_qos_profile_services_default;
     rclcpp::callback_group::CallbackGroup::SharedPtr _cb_group;
 };
