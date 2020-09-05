@@ -2,20 +2,20 @@
 // Created by kira on 05.09.2020.
 //
 
-#ifndef COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ROBOT_EXECUTOR_H_
-#define COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ROBOT_EXECUTOR_H_
+#ifndef COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_ROBOT_EXECUTOR_H_
+#define COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_ROBOT_EXECUTOR_H_
 
 #include <rclcpp/executors/single_threaded_executor.hpp>
 using namespace std::chrono_literals;
 
-
+namespace cock_and_ball {
 class RobotExecutor {
  public:
     friend class Job;
     using SharedPtr = std::shared_ptr<RobotExecutor>;
     using WeakPtr = std::weak_ptr<RobotExecutor>;
 
-    explicit RobotExecutor(const rclcpp::executor::ExecutorArgs & args = rclcpp::executor::ExecutorArgs{});
+    explicit RobotExecutor(const rclcpp::executor::ExecutorArgs &args = rclcpp::executor::ExecutorArgs{});
     ~RobotExecutor();
 
     [[nodiscard]] rclcpp::executors::SingleThreadedExecutor::SharedPtr get() const;
@@ -37,5 +37,6 @@ class Job {
  private:
     RobotExecutor::WeakPtr _executor;
 };
+}  // namespace cock_and_ball
 
-#endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ROBOT_EXECUTOR_H_
+#endif // COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_ROBOT_EXECUTOR_H_

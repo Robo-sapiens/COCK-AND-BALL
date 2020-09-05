@@ -11,10 +11,13 @@
 #include <rclcpp/node.hpp>
 #include <rclcpp/executors.hpp>
 
+using namespace std::chrono_literals;
+
 namespace cock_and_ball {
 namespace Constants {
 constexpr short RetryTimes{100};
-}  // constants
+constexpr std::chrono::milliseconds WaitForServerTimeOut{100ms};
+}  // namespace Constants
 
 class AbstractNode {
  public:
