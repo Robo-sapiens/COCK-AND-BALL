@@ -10,11 +10,11 @@ using namespace cock_and_ball;
 
 class IWaterState {
  public:
-    IWaterState(const std::string &name, std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : _name(name), _machine(state_machine) {}
-    [[nodiscard]] const std::string &name() const {
+    const std::string &name() const {
         return _name;
     }
+    IWaterState(const std::string &name, std::shared_ptr<StateMachine<IWaterState>> state_machine)
+        : _name(name), _machine(state_machine) {}
     virtual void heat_up() = 0;
     virtual void cool_down() = 0;
 
