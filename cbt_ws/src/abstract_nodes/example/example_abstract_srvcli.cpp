@@ -64,18 +64,12 @@ int main(int argc, char **argv) {
         executor,
         AbstractNode::CBGrType::MutuallyExclusive
     };
-    client.request(
-        std::make_shared<AddTwoIntsRequest>(10, 15),
-        [&client](AddTwoIntsClient::SharedFuture future) {
-            client.info(std::to_string(future.get()->sum));
-            client.request(std::make_shared<AddTwoIntsRequest>(1, 5),
-                [&client](AddTwoIntsClient::SharedFuture future) {
-                    client.info(std::to_string(future.get()->sum));
-            });
-        });
     std::thread worker{[&executor]() {
         executor->spin();
     }};
+    auto result = client.request(std::make_shared<AddTwoIntsRequest>(10, 15));
+    client.info(std::to_string(result->sum));
+    client.info(std::to_string(client.request(std::make_shared<AddTwoIntsRequest>(1, 5))->sum));
     worker.join();
     rclcpp::shutdown();
     return 0;

@@ -23,10 +23,10 @@ class AbstractServiceClient : public AbstractNode {
                           rclcpp::executor::Executor::SharedPtr executor,
                           CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
-    SharedFuture request(RequestSharedPtr request_shared_ptr, RequestCBType cb =
-    [](SharedFuture future) { (void) future; }) {
-//    ResponseSharedPtr request(RequestSharedPtr request_shared_ptr, RequestCBType cb =
+//    SharedFuture request(RequestSharedPtr request_shared_ptr, RequestCBType cb =
 //    [](SharedFuture future) { (void) future; }) {
+    ResponseSharedPtr request(RequestSharedPtr request_shared_ptr, RequestCBType cb =
+    [](SharedFuture future) { (void) future; }) {
         for (int i = 0; i < Constants::RetryTimes; ++i) {
             if (_client->wait_for_service(100ms)) {
                 break;
@@ -37,9 +37,9 @@ class AbstractServiceClient : public AbstractNode {
             throw std::runtime_error("service is not ready");  // TODO: base exception
         }
         auto future{_client->async_send_request(request_shared_ptr->impl(), cb)};
-        return future;
-//        future.wait();
-//        return future.get();
+//        return future;
+        future.wait();
+        return future.get();
     }
 
  protected:
