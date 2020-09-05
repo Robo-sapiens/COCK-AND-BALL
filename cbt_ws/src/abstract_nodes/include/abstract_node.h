@@ -7,7 +7,8 @@
 
 #include "abstract_node_description.h"
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
+#include <rclcpp/executors.hpp>
 
 namespace cock_and_ball {
 namespace Constants {

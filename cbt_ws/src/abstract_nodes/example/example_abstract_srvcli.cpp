@@ -5,6 +5,7 @@
 #include "abstract_service.hpp"
 #include "abstract_service_client.hpp"
 #include "abstract_request.hpp"
+
 #include <example_interfaces/srv/add_two_ints.hpp>
 
 using example_interfaces::srv::AddTwoInts;
@@ -27,9 +28,7 @@ class AddTwoIntsService : public AbstractService<AddTwoInts> {
         : AbstractService(description, executor, cb_group_type) {}
     void callback(std::shared_ptr<AddTwoInts::Request> request,
                   std::shared_ptr<AddTwoInts::Response> response) override {
-        RCLCPP_INFO(
-            _node->get_logger(),
-            "request: %d + %d", request->a, request->b);
+        info("request: " + std::to_string(request->a) + " + " + std::to_string(request->b));
         response->sum = request->a + request->b;
     }
 };
@@ -53,7 +52,8 @@ class AddTwoIntsRequest : public AbstractRequest<AddTwoInts::Request> {
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
 
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    auto executor_args = rclcpp::executor::ExecutorArgs{};
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>(executor_args);
     AddTwoIntsService service{
         std::make_shared<AddTwoIntsDescription>(),
         executor,
@@ -64,11 +64,19 @@ int main(int argc, char **argv) {
         executor,
         AbstractNode::CBGrType::MutuallyExclusive
     };
-    auto future = client.request(std::make_shared<AddTwoIntsRequest>(10, 15),
-                                 [&client](AddTwoIntsClient::SharedFuture future) {
-                                     client.info(std::to_string(future.get()->sum));
-                                 });
-    executor->spin_until_future_complete(future);
+    client.request(
+        std::make_shared<AddTwoIntsRequest>(10, 15),
+        [&client](AddTwoIntsClient::SharedFuture future) {
+            client.info(std::to_string(future.get()->sum));
+            client.request(std::make_shared<AddTwoIntsRequest>(1, 5),
+                [&client](AddTwoIntsClient::SharedFuture future) {
+                    client.info(std::to_string(future.get()->sum));
+            });
+        });
+    std::thread worker{[&executor]() {
+        executor->spin();
+    }};
+    worker.join();
     rclcpp::shutdown();
     return 0;
 }
