@@ -12,7 +12,7 @@ template<class ServiceT>
 class AbstractService : public AbstractNode {
  public:
     AbstractService(AbstractNodeDescription::SharedPtr description,
-                    rclcpp::executor::Executor::SharedPtr executor,
+                    RobotExecutor::SharedPtr executor,
                     CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
 
@@ -26,6 +26,7 @@ class AbstractService : public AbstractNode {
                std::shared_ptr<typename ServiceT::Request> request,
                std::shared_ptr<typename ServiceT::Response> response) {
             (void) request_header;
+            Job job{_executor.lock()};
             callback(request, response);
         },
         _service_qos_profile,

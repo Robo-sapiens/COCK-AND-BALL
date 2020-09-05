@@ -6,13 +6,13 @@
 
 namespace cock_and_ball {
 AbstractNode::AbstractNode(AbstractNodeDescription::SharedPtr description,
-                           rclcpp::executor::Executor::SharedPtr executor,
+                           RobotExecutor::SharedPtr executor,
                            AbstractNode::CBGrType cb_group_type)
     : _node(new rclcpp::Node(description->qualified_name())),
       _description(description),
       _executor(executor) {
     _cb_group = _node->create_callback_group(cb_group_type);
-    _executor->add_node(_node);
+    _executor.lock()->get()->add_node(_node);
 }
 void AbstractNode::debug(const std::string &log_str) const {
     RCLCPP_DEBUG(_node->get_logger(), log_str);
