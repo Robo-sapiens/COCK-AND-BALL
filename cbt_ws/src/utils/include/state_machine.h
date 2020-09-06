@@ -10,6 +10,7 @@
 #include <memory>
 #include <map>
 #include <regex>
+#include <unordered_map>
 
 namespace cock_and_ball {
 class StateException : public Exception {
@@ -40,7 +41,7 @@ class StateTransitions {
         IState::SharedPtr src;
         IState::SharedPtr dst;
     };
-    using MultiMap = std::multimap<std::string, Transition>;
+    using MultiMap = std::unordered_multimap<std::string, Transition>;
 
     explicit StateTransitions(MultiMap &&transitions, StateCollection &&collection);
 
@@ -49,7 +50,7 @@ class StateTransitions {
                                                const std::string &trigger) const;
     void extend_with(const std::string &trigger,
                      const std::regex& src_regex,
-                     IState::SharedPtr dst);
+                     const IState::SharedPtr& dst);
 
  private:
     MultiMap _transitions;

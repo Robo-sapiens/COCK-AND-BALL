@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(COCK-AND-BALL)
 set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
-# usually I put this in a separate file include("/opt/ros/_common/Colcon.cmake")
 function(colcon_add_subdirectories)
     cmake_parse_arguments(PARSE_ARGV 0 "ARG" "" "BUILD_BASE;BASE_PATHS" "")
 
@@ -21,7 +21,6 @@ function(colcon_add_subdirectories)
 
     foreach(path IN LISTS paths)
         message("...examining ${path}")
-        # if(EXISTS "${path}/CMakeLists.txt")
         execute_process(COMMAND colcon info --paths "${path}" OUTPUT_VARIABLE package_info)
         if(NOT "${package_info}" MATCHES "type:[ \t]+(cmake|ros.ament_cmake|ros.cmake)")
             message("skipping non-cmake project")
@@ -42,5 +41,5 @@ endfunction()
 colcon_add_subdirectories(
         BUILD_BASE "${PROJECT_SOURCE_DIR}/build"
         BASE_PATHS "${PROJECT_SOURCE_DIR}/src/"
-#        --packages-select rmw_cyclonedds_cpp performance_test
+#        --packages-select
 )
