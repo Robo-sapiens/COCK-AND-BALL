@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(COCK-AND-BALL)
 set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 # usually I put this in a separate file include("/opt/ros/_common/Colcon.cmake")
 function(colcon_add_subdirectories)
