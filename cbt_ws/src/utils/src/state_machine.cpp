@@ -8,10 +8,27 @@
 
 namespace cock_and_ball {
 StateException::StateException(const std::string &what) : Exception(what) {}
-StateTransitions::StateTransitions(MultiMap &&transitions)
-    : _transitions(std::move(transitions)) {}
+StateCollection::StateCollection(std::initializer_list<IState::SharedPtr> &&states) {
+    for (const auto& state: states) {
+        _name_to_state[state->name()] = state;
+    }
+}
+IState::SharedPtr StateCollection::get_one(const std::string &name) const {
+    return _name_to_state.at(name);
+}
+std::vector<IState::SharedPtr> StateCollection::get(const std::regex &state_regex) const {
+    std::vector<IState::SharedPtr> states;
+    for (const auto& item: _name_to_state) {
+        if (std::regex_match(item.first, state_regex)) {
+            states.push_back(item.second);
+        }
+    }
+    return states;
+}
+StateTransitions::StateTransitions(MultiMap &&transitions, StateCollection &&collection)
+    : _transitions(std::move(transitions)), _collection(std::move(collection)) {}
 void StateTransitions::add_transition(const std::string &trigger, Transition transition) {
-    _transitions.insert({trigger, transition});
+    _transitions.insert({trigger, std::move(transition)});
 }
 IState::SharedPtr StateTransitions::next_state(const IState::SharedPtr &src,
                                                const std::string &trigger) const {
@@ -24,6 +41,13 @@ IState::SharedPtr StateTransitions::next_state(const IState::SharedPtr &src,
     } else {
         throw StateException("can't change state from \"" + src->name() + "\" " +
             "with trigger \"" + trigger + "\"");
+    }
+}
+void StateTransitions::extend_with(const std::string &trigger,
+                                   const std::regex& src_regex,
+                                   IState::SharedPtr dst) {
+    for (auto src: _collection.get(src_regex)) {
+        _transitions.insert({trigger, {src, dst}});
     }
 }
 IState::SharedPtr StateMachine::current() const {

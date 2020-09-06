@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <map>
+#include <regex>
 
 namespace cock_and_ball {
 class StateException : public Exception {
@@ -22,6 +23,15 @@ class IState {
     [[nodiscard]] virtual std::string name() const = 0;
 };
 
+class StateCollection {
+ public:
+    StateCollection(std::initializer_list<IState::SharedPtr> &&states);
+    [[nodiscard]] IState::SharedPtr get_one(const std::string &name) const;
+    [[nodiscard]] std::vector<IState::SharedPtr> get(const std::regex &state_regex) const;
+ private:
+    std::map<std::string, IState::SharedPtr> _name_to_state{};
+};
+
 class StateTransitions {
  public:
     using UniquePtr = std::unique_ptr<StateTransitions>;
@@ -32,14 +42,18 @@ class StateTransitions {
     };
     using MultiMap = std::multimap<std::string, Transition>;
 
-    explicit StateTransitions(MultiMap &&transitions);
+    explicit StateTransitions(MultiMap &&transitions, StateCollection &&collection);
 
     void add_transition(const std::string &trigger, Transition transition);
     [[nodiscard]] IState::SharedPtr next_state(const IState::SharedPtr &src,
                                                const std::string &trigger) const;
+    void extend_with(const std::string &trigger,
+                     const std::regex& src_regex,
+                     IState::SharedPtr dst);
 
  private:
     MultiMap _transitions;
+    StateCollection _collection;
 };
 
 class StateMachine {
