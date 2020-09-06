@@ -5,6 +5,7 @@
 #include "robot_executor.h"
 
 namespace cock_and_ball {
+namespace executor {
 RobotExecutor::RobotExecutor(const rclcpp::executor::ExecutorArgs &args)
     : _single_threaded_executor(std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args)) {
 }
@@ -21,4 +22,5 @@ Job::Job(RobotExecutor::SharedPtr executor) : _executor(executor) {
 Job::~Job() {
     --_executor.lock()->_amount_of_jobs;
 }
+}  // namespace executor
 }  // namespace cock_and_ball

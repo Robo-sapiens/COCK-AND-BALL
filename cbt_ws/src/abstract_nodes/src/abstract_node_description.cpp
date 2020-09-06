@@ -5,6 +5,7 @@
 #include "abstract_node_description.h"
 
 namespace cock_and_ball {
+namespace abstract {
 AbstractNodeDescription::AbstractNodeDescription(const std::string &client_user)
     : _client_user(client_user) {}
 std::string AbstractNodeDescription::client_name() const {
@@ -19,4 +20,5 @@ std::string AbstractNodeDescription::qualified_name() const {
     }
     return server_name();
 }
+}  // namespace abstract
 }  // namespace cock_and_ball

@@ -11,6 +11,7 @@
 
 
 namespace cock_and_ball {
+namespace abstract {
 template<class ServiceT>
 class AbstractServiceClient : public AbstractNode {
  public:
@@ -20,12 +21,12 @@ class AbstractServiceClient : public AbstractNode {
     using SharedFuture = typename rclcpp::Client<ServiceT>::SharedFuture;
 
     AbstractServiceClient(AbstractNodeDescription::SharedPtr description,
-                          RobotExecutor::SharedPtr executor,
+                          executor::RobotExecutor::SharedPtr executor,
                           CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
     ResponseSharedPtr request(RequestSharedPtr request_shared_ptr, RequestCBType cb =
     [](SharedFuture future) { (void) future; }) {
-        Job job{_executor.lock()};
+        executor::Job job{_executor.lock()};
         wait_for_server();
         auto future{_client->async_send_request(request_shared_ptr->impl(), cb)};
         future.wait();
@@ -48,6 +49,7 @@ class AbstractServiceClient : public AbstractNode {
         _node->create_client<ServiceT>(_description->name(), _service_qos_profile, _cb_group)
     };
 };
+}  // namespace abstract
 }  // namespace cock_and_ball
 
 #endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_CLIENT_HPP_

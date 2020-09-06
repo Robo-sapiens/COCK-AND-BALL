@@ -5,8 +5,9 @@
 #include "abstract_node.h"
 
 namespace cock_and_ball {
+namespace abstract {
 AbstractNode::AbstractNode(AbstractNodeDescription::SharedPtr description,
-                           RobotExecutor::SharedPtr executor,
+                           executor::RobotExecutor::SharedPtr executor,
                            AbstractNode::CBGrType cb_group_type)
     : _node(new rclcpp::Node(description->qualified_name())),
       _description(description),
@@ -29,4 +30,5 @@ void AbstractNode::error(const std::string &log_str) const {
 rclcpp::Logger AbstractNode::logger() const {
     return _node->get_logger();
 }
+}  // namespace abstract
 }  // namespace cock_and_ball

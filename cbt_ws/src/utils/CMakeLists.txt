@@ -7,8 +7,7 @@ find_package(rclcpp REQUIRED)
 
 add_library(utils SHARED
         src/robot_executor.cpp
-        src/cock_and_ball_exception.cpp
-        src/state_machine.cpp)
+        src/cock_and_ball_exception.cpp)
 
 target_link_libraries(utils PUBLIC
         ${rclcpp_LIBRARIES})
@@ -30,5 +29,3 @@ if (BUILD_TESTING)
 endif ()
 
 ament_package()
-add_executable(example_abstract_state example/example_state_machine.cpp)
-target_link_libraries(example_abstract_state PUBLIC utils)

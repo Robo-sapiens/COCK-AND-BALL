@@ -8,6 +8,7 @@
 #include <memory>
 
 namespace cock_and_ball {
+namespace abstract {
 template<class RequestT>
 class AbstractRequest {
  public:
@@ -20,6 +21,7 @@ class AbstractRequest {
  protected:
     typename RequestT::SharedPtr _request{std::make_shared<RequestT>()};
 };
+}  // namespace abstract
 }  // namespace cock_and_ball
 
 
