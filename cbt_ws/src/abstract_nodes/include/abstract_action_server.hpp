@@ -6,7 +6,7 @@
 #define COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_ACTION_SERVER_H_
 
 #include "abstract_node.h"
-#include "state_machine.hpp"
+#include "state_machine.h"
 
 #include <rclcpp_action/rclcpp_action.hpp>
 

@@ -20,10 +20,9 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
 add_library(utils SHARED
-        include/state_machine.hpp
         src/robot_executor.cpp
         src/cock_and_ball_exception.cpp
-        )
+        src/state_machine.cpp)
 
 target_link_libraries(utils PUBLIC
         ${rclcpp_LIBRARIES})

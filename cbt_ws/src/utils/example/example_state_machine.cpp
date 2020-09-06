@@ -2,89 +2,60 @@
 // Created by kira on 05.09.2020.
 //
 
-#include "state_machine.hpp"
+#include "state_machine.h"
 
 #include <iostream>
 #include <utility>
 
 using namespace cock_and_ball;
 
-class IWaterState {
+class Water : public IState {
  public:
-    [[nodiscard]] virtual std::string name() const = 0;
-    explicit IWaterState(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : _machine(std::move(state_machine)) {}
-    virtual void heat_up() = 0;
-    virtual void cool_down() = 0;
-
- protected:
-    std::shared_ptr<StateMachine<IWaterState>> _machine;
-};
-
-class Water : public IWaterState {
- public:
-    explicit Water(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState(std::move(state_machine)) {}
     [[nodiscard]] std::string name() const override {
         return "Water";
     }
-    void heat_up() override;
-    void cool_down() override;
 };
 
-class Ice : public IWaterState {
+class Ice : public IState {
  public:
-    explicit Ice(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState(std::move(state_machine)) {}
     [[nodiscard]] std::string name() const override {
         return "Ice";
     }
-    void heat_up() override;
-    void cool_down() override;
 };
 
-class Steam : public IWaterState {
+class Steam : public IState {
  public:
-    explicit Steam(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState(std::move(state_machine)) {}
     [[nodiscard]] std::string name() const override {
         return "Steam";
     }
-    void heat_up() override;
-    void cool_down() override;
 };
 
-void Water::heat_up() {
-    _machine->set_current_state(std::make_unique<Steam>(_machine));
-}
-void Water::cool_down() {
-    _machine->set_current_state(std::make_unique<Ice>(_machine));
-}
-
-void Steam::heat_up() {}
-void Steam::cool_down() {
-    _machine->set_current_state(std::make_unique<Water>(_machine));
-}
-
-void Ice::heat_up() {
-    _machine->set_current_state(std::make_unique<Water>(_machine));
-}
-void Ice::cool_down() {}
-
 int main(int argc, char **argv) {
-    std::shared_ptr<StateMachine<IWaterState>> bowl_of_water{new StateMachine<IWaterState>{}};
-    bowl_of_water->set_current_state(std::make_unique<Water>(bowl_of_water));
+    auto water = std::make_shared<Water>();
+    auto ice = std::make_shared<Ice>();
+    auto steam = std::make_shared<Steam>();
 
-    std::cout << "current state: " << bowl_of_water->current().name() << std::endl;
+    StateMachine bowl_of_water{water,
+        std::make_unique<StateTransitions>(
+            StateTransitions::MultiMap{
+                {
+                    {"heat_up", {ice, water}},
+                    {"heat_up", {water, steam}},
+                    {"heat_up", {steam, steam}},
+                    {"cool_down", {steam, water}},
+                    {"cool_down", {water, ice}},
+                    {"cool_down", {ice, ice}}
+                }
+            })
+    };
+
+    std::cout << "available commands: heat_up, cool_down" << std::endl;
+    std::cout << "current state: " << bowl_of_water.current()->name() << std::endl;
 
     std::string cmd{};
     while (std::cin >> cmd) {
-        if (cmd == "heat") {
-            bowl_of_water->current().heat_up();
-        } else if (cmd == "cool") {
-            bowl_of_water->current().cool_down();
-        }
-        std::cout << "current state: " << bowl_of_water->current().name() << std::endl;
+        bowl_of_water.change_state(cmd);
+        std::cout << "current state: " << bowl_of_water.current()->name() << std::endl;
     }
     return 0;
 }
