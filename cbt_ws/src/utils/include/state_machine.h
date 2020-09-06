@@ -8,7 +8,7 @@
 #include "cock_and_ball_exception.h"
 
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 namespace cock_and_ball {
 class StateException : public Exception {
@@ -30,7 +30,7 @@ class StateTransitions {
         IState::SharedPtr src;
         IState::SharedPtr dst;
     };
-    using MultiMap = std::multimap<std::string, Transition>;
+    using MultiMap = std::unordered_multimap<std::string, Transition>;
 
     explicit StateTransitions(MultiMap &&transitions);
 
