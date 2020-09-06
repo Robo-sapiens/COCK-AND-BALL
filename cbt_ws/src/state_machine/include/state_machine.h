@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 namespace cock_and_ball {
+namespace state_machine {
 class StateException : public Exception {
  public:
     explicit StateException(const std::string &what);
@@ -49,8 +50,8 @@ class StateTransitions {
     [[nodiscard]] IState::SharedPtr next_state(const IState::SharedPtr &src,
                                                const std::string &trigger) const;
     void extend_with(const std::string &trigger,
-                     const std::regex& src_regex,
-                     const IState::SharedPtr& dst);
+                     const std::regex &src_regex,
+                     const IState::SharedPtr &dst);
 
  private:
     MultiMap _transitions;
@@ -72,6 +73,7 @@ class StateMachine {
     IState::SharedPtr _current_state;
     StateTransitions::UniquePtr _transitions;
 };
+}  // namespace state_machine
 }  // namespace cock_and_ball
 
 #endif // COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_STATE_MACHINE_H_

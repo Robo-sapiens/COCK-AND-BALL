@@ -7,6 +7,7 @@
 #include <algorithm>
 
 namespace cock_and_ball {
+namespace state_machine {
 StateException::StateException(const std::string &what) : Exception(what) {}
 StateCollection::StateCollection(std::initializer_list<IState::SharedPtr> &&states) {
     for (const auto& state: states) {
@@ -62,4 +63,5 @@ void StateMachine::change_state(const std::string &trigger) {
 void StateMachine::set_current_state(IState::SharedPtr state) {
     _current_state = std::move(state);
 }
+}  // namespace state_machine
 }  // namespace cock_and_ball

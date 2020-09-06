@@ -7,7 +7,7 @@
 #include <iostream>
 #include <utility>
 
-using namespace cock_and_ball;
+using namespace cock_and_ball::state_machine;
 
 class Water : public IState {
  public:
