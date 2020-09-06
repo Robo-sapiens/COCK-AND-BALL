@@ -13,7 +13,7 @@
 
 namespace cock_and_ball {
 template<class StateT,
-    const std::string &(StateT::*)() const = &StateT::name>
+    std::string (StateT::*)() const = &StateT::name>
 class StateMachine {
  public:
     StateMachine() = default;

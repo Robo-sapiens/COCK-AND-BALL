@@ -5,21 +5,17 @@
 #include "state_machine.hpp"
 
 #include <iostream>
+#include <utility>
 
 using namespace cock_and_ball;
 
 class IWaterState {
  public:
-    const std::string &name() const {
-        return _name;
-    }
-    IWaterState(const std::string &name, std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : _name(name), _machine(state_machine) {}
+    [[nodiscard]] virtual std::string name() const = 0;
+    explicit IWaterState(std::shared_ptr<StateMachine<IWaterState>> state_machine)
+        : _machine(std::move(state_machine)) {}
     virtual void heat_up() = 0;
     virtual void cool_down() = 0;
-
- private:
-    std::string _name;
 
  protected:
     std::shared_ptr<StateMachine<IWaterState>> _machine;
@@ -27,24 +23,33 @@ class IWaterState {
 
 class Water : public IWaterState {
  public:
-    Water(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState("Water", state_machine) {}
+    explicit Water(std::shared_ptr<StateMachine<IWaterState>> state_machine)
+        : IWaterState(std::move(state_machine)) {}
+    [[nodiscard]] std::string name() const override {
+        return "Water";
+    }
     void heat_up() override;
     void cool_down() override;
 };
 
 class Ice : public IWaterState {
  public:
-    Ice(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState("Ice", state_machine) {}
+    explicit Ice(std::shared_ptr<StateMachine<IWaterState>> state_machine)
+        : IWaterState(std::move(state_machine)) {}
+    [[nodiscard]] std::string name() const override {
+        return "Ice";
+    }
     void heat_up() override;
     void cool_down() override;
 };
 
 class Steam : public IWaterState {
  public:
-    Steam(std::shared_ptr<StateMachine<IWaterState>> state_machine)
-        : IWaterState("Steam", state_machine) {}
+    explicit Steam(std::shared_ptr<StateMachine<IWaterState>> state_machine)
+        : IWaterState(std::move(state_machine)) {}
+    [[nodiscard]] std::string name() const override {
+        return "Steam";
+    }
     void heat_up() override;
     void cool_down() override;
 };
@@ -65,7 +70,6 @@ void Ice::heat_up() {
     _machine->set_current_state(std::make_unique<Water>(_machine));
 }
 void Ice::cool_down() {}
-
 
 int main(int argc, char **argv) {
     std::shared_ptr<StateMachine<IWaterState>> bowl_of_water{new StateMachine<IWaterState>{}};
