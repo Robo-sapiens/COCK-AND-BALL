@@ -32,7 +32,8 @@ add_library(abstract_nodes SHARED
 
 target_link_libraries(abstract_nodes PUBLIC
         ${rclcpp_LIBRARIES}
-        utils)
+        utils
+        state_machine)
 
 target_include_directories(abstract_nodes PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

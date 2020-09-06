@@ -9,6 +9,7 @@
 using namespace std::chrono_literals;
 
 namespace cock_and_ball {
+namespace executor {
 class RobotExecutor {
  public:
     friend class Job;
@@ -37,6 +38,7 @@ class Job {
  private:
     RobotExecutor::WeakPtr _executor;
 };
+}  // namespace executor
 }  // namespace cock_and_ball
 
 #endif // COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_ROBOT_EXECUTOR_H_

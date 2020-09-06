@@ -11,6 +11,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 namespace cock_and_ball {
+namespace abstract {
 template<class ActionT>
 class AbstractActionServer : public AbstractNode {
  public:
@@ -18,7 +19,7 @@ class AbstractActionServer : public AbstractNode {
     using GoalHandleSharedPtr = std::shared_ptr<GoalHandle>;
 
     AbstractActionServer(AbstractNodeDescription::SharedPtr description,
-                         RobotExecutor::SharedPtr executor,
+                         executor::RobotExecutor::SharedPtr executor,
                          CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
 
@@ -82,6 +83,7 @@ class AbstractActionServer : public AbstractNode {
         }
     }
 };
+}  // namespace abstract
 }  // namespace cock_and_ball
 
 #endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_ACTION_SERVER_H_

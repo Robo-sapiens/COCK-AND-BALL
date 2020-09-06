@@ -10,7 +10,8 @@
 #include <example_interfaces/srv/add_two_ints.hpp>
 
 using example_interfaces::srv::AddTwoInts;
-using namespace cock_and_ball;
+using namespace cock_and_ball::executor;
+using namespace cock_and_ball::abstract;
 
 class AddTwoIntsDescription : public AbstractNodeDescription {
  public:

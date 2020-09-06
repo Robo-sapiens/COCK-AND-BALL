@@ -8,10 +8,12 @@
 #include "cock_and_ball_exception.h"
 
 namespace cock_and_ball {
+namespace abstract {
 class AbstractNodeException : public Exception {
  public:
     AbstractNodeException(const std::string &what);
 };
+}  // namespace abstract
 }  // cock_and_ball
 
 #endif //COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_NODE_EXCEPTION_H_

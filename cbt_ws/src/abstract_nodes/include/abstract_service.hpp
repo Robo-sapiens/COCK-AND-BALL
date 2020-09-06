@@ -8,11 +8,12 @@
 #include "abstract_node.h"
 
 namespace cock_and_ball {
+namespace abstract {
 template<class ServiceT>
 class AbstractService : public AbstractNode {
  public:
     AbstractService(AbstractNodeDescription::SharedPtr description,
-                    RobotExecutor::SharedPtr executor,
+                    executor::RobotExecutor::SharedPtr executor,
                     CBGrType cb_group_type)
         : AbstractNode(description, executor, cb_group_type) {}
 
@@ -26,13 +27,14 @@ class AbstractService : public AbstractNode {
                std::shared_ptr<typename ServiceT::Request> request,
                std::shared_ptr<typename ServiceT::Response> response) {
             (void) request_header;
-            Job job{_executor.lock()};
+            executor::Job job{_executor.lock()};
             callback(request, response);
         },
         _service_qos_profile,
         _cb_group)
     };
 };
+}  // namespace abstract
 }  // namespace cock_and_ball
 
 #endif  // COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_SERVICE_HPP_
