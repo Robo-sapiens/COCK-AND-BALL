@@ -6,6 +6,7 @@
 #define COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_STATE_MACHINE_H_
 
 #include "cock_and_ball_exception.h"
+#include "signal_queue.hpp"
 
 #include <memory>
 #include <map>
@@ -19,28 +20,10 @@ class StateException : public Exception {
     explicit StateException(const std::string &what);
 };
 
-class SignalQueue {  // TODO: move to utils
- public:
-    using SharedPtr = std::shared_ptr<SignalQueue>;
-    SignalQueue() = default;
-
-    void emit(std::string &&signal);
-    std::string dispatch_signal();
-    bool ready() const;
- private:
-    std::deque<std::string> _q;
-};
-
 class IState {
  public:
     using SharedPtr = std::shared_ptr<IState>;
-
-    explicit IState(SignalQueue::SharedPtr signal_q);
-
     [[nodiscard]] virtual std::string name() const = 0;
-    virtual void execute() = 0;
- protected:
-    SignalQueue::SharedPtr _signal_q;
 };
 
 class StateCollection {
@@ -81,7 +64,7 @@ class StateMachine {
     StateMachine() = delete;
     explicit StateMachine(IState::SharedPtr initial_state,
                           StateTransitions::UniquePtr &&transitions,
-                          SignalQueue::SharedPtr signal_q);
+                          signal::SignalQueue<std::string>::SharedPtr signal_q);
 
     [[nodiscard]] IState::SharedPtr current() const;
     void change_state(const std::string &trigger);
@@ -91,7 +74,7 @@ class StateMachine {
 
     IState::SharedPtr _current_state;
     StateTransitions::UniquePtr _transitions;
-    SignalQueue::SharedPtr _signal_q;
+    signal::SignalQueue<std::string>::SharedPtr _signal_q;
 };
 }  // namespace state_machine
 }  // namespace cock_and_ball

@@ -27,5 +27,5 @@ endif()
 
 ament_package()
 
-add_executable(example_abstract_state example/example_state_machine.cpp)
-target_link_libraries(example_abstract_state PUBLIC state_machine)
+add_executable(example_state_machine example/example_state_machine.cpp)
+target_link_libraries(example_state_machine PUBLIC state_machine)

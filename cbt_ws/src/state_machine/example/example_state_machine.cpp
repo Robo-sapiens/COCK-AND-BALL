@@ -8,18 +8,21 @@
 #include <utility>
 
 using namespace cock_and_ball::state_machine;
+using namespace cock_and_ball::signal;
 
 class IH2O : public IState {
  public:
-    IH2O(std::shared_ptr<SignalQueue> shared_ptr) : IState(shared_ptr) {}
-    void execute() override {
+    IH2O(std::shared_ptr<SignalQueue<std::string>> signal_q) : _signal_q(signal_q) {}
+    void execute() {
         _signal_q->emit(name());
     }
+ protected:
+    SignalQueue<std::string>::SharedPtr _signal_q;
 };
 
 class Water : public IH2O {
  public:
-    Water(std::shared_ptr<SignalQueue> shared_ptr) : IH2O(shared_ptr) {}
+    Water(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Water";
     }
@@ -27,7 +30,7 @@ class Water : public IH2O {
 
 class Ice : public IH2O {
  public:
-    Ice(std::shared_ptr<SignalQueue> shared_ptr) : IH2O(shared_ptr) {}
+    Ice(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Ice";
     }
@@ -35,7 +38,7 @@ class Ice : public IH2O {
 
 class Steam : public IH2O {
  public:
-    Steam(std::shared_ptr<SignalQueue> shared_ptr) : IH2O(shared_ptr) {}
+    Steam(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Steam";
     }
@@ -43,7 +46,7 @@ class Steam : public IH2O {
 
 class Void : public IH2O {
  public:
-    Void(std::shared_ptr<SignalQueue> shared_ptr) : IH2O(shared_ptr) {}
+    Void(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Void";
     }
@@ -52,7 +55,7 @@ class Void : public IH2O {
 int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
-    auto signal_q = std::make_shared<SignalQueue>();
+    auto signal_q = std::make_shared<SignalQueue<std::string>>();
 
     auto water = std::make_shared<Water>(signal_q);
     auto ice = std::make_shared<Ice>(signal_q);
@@ -86,7 +89,8 @@ int main(int argc, char **argv) {
     while (std::cin >> cmd) {
         bowl_of_water.change_state(cmd);
         std::cout << "current state: " << bowl_of_water.current()->name() << std::endl;
-        bowl_of_water.current()->execute();
+        auto * h2o = dynamic_cast<IH2O *>(bowl_of_water.current().get());
+        h2o->execute();
         while (signal_q->ready()) {
             std::cout << "signal: " << signal_q->dispatch_signal() << std::endl;
         }
