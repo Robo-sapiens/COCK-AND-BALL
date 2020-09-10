@@ -7,7 +7,8 @@ find_package(rclcpp REQUIRED)
 
 add_library(utils SHARED
         src/robot_executor.cpp
-        src/cock_and_ball_exception.cpp)
+        src/cock_and_ball_exception.cpp
+        include/signal_queue.hpp)
 
 target_link_libraries(utils PUBLIC
         ${rclcpp_LIBRARIES})

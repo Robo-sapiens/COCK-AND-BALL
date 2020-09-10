@@ -8,30 +8,45 @@
 #include <utility>
 
 using namespace cock_and_ball::state_machine;
+using namespace cock_and_ball::signal;
 
-class Water : public IState {
+class IH2O : public IState {
  public:
+    IH2O(std::shared_ptr<SignalQueue<std::string>> signal_q) : _signal_q(signal_q) {}
+    void execute() {
+        _signal_q->emit(name());
+    }
+ protected:
+    SignalQueue<std::string>::SharedPtr _signal_q;
+};
+
+class Water : public IH2O {
+ public:
+    Water(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Water";
     }
 };
 
-class Ice : public IState {
+class Ice : public IH2O {
  public:
+    Ice(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Ice";
     }
 };
 
-class Steam : public IState {
+class Steam : public IH2O {
  public:
+    Steam(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Steam";
     }
 };
 
-class Void : public IState {
+class Void : public IH2O {
  public:
+    Void(std::shared_ptr<SignalQueue<std::string>> signal_q) : IH2O(signal_q) {}
     [[nodiscard]] std::string name() const override {
         return "Void";
     }
@@ -40,10 +55,12 @@ class Void : public IState {
 int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
-    auto water = std::make_shared<Water>();
-    auto ice = std::make_shared<Ice>();
-    auto steam = std::make_shared<Steam>();
-    auto voidness = std::make_shared<Void>();
+    auto signal_q = std::make_shared<SignalQueue<std::string>>();
+
+    auto water = std::make_shared<Water>(signal_q);
+    auto ice = std::make_shared<Ice>(signal_q);
+    auto steam = std::make_shared<Steam>(signal_q);
+    auto voidness = std::make_shared<Void>(signal_q);
 
     auto transitions = std::make_unique<StateTransitions>(
         StateTransitions::MultiMap{
@@ -61,7 +78,8 @@ int main(int argc, char **argv) {
 
     StateMachine bowl_of_water{
         water,
-        std::move(transitions)
+        std::move(transitions),
+        signal_q
     };
 
     std::cout << "available commands: heat_up, cool_down, flush" << std::endl;
@@ -71,6 +89,11 @@ int main(int argc, char **argv) {
     while (std::cin >> cmd) {
         bowl_of_water.change_state(cmd);
         std::cout << "current state: " << bowl_of_water.current()->name() << std::endl;
+        auto * h2o = dynamic_cast<IH2O *>(bowl_of_water.current().get());
+        h2o->execute();
+        while (signal_q->ready()) {
+            std::cout << "signal: " << signal_q->dispatch_signal() << std::endl;
+        }
     }
     return 0;
 }

@@ -10,7 +10,7 @@ namespace cock_and_ball {
 namespace state_machine {
 StateException::StateException(const std::string &what) : Exception(what) {}
 StateCollection::StateCollection(std::initializer_list<IState::SharedPtr> &&states) {
-    for (const auto& state: states) {
+    for (const auto &state: states) {
         _name_to_state[state->name()] = state;
     }
 }
@@ -19,7 +19,7 @@ IState::SharedPtr StateCollection::get_one(const std::string &name) const {
 }
 std::vector<IState::SharedPtr> StateCollection::get(const std::regex &state_regex) const {
     std::vector<IState::SharedPtr> states;
-    for (const auto & [name, state]: _name_to_state) {
+    for (const auto &[name, state]: _name_to_state) {
         if (std::regex_match(name, state_regex)) {
             states.push_back(state);
         }
@@ -33,7 +33,7 @@ void StateTransitions::add_transition(const std::string &trigger, Transition tra
 }
 IState::SharedPtr StateTransitions::next_state(const IState::SharedPtr &src,
                                                const std::string &trigger) const {
-    auto [range_begin, range_end] = _transitions.equal_range(trigger);
+    auto[range_begin, range_end] = _transitions.equal_range(trigger);
     auto dst_it = std::find_if(range_begin, range_end, [&src](const MultiMap::value_type &item) {
         return item.second.src == src;
     });
@@ -45,9 +45,9 @@ IState::SharedPtr StateTransitions::next_state(const IState::SharedPtr &src,
     }
 }
 void StateTransitions::extend_with(const std::string &trigger,
-                                   const std::regex& src_regex,
-                                   const IState::SharedPtr& dst) {
-    for (const auto& src: _collection.get(src_regex)) {
+                                   const std::regex &src_regex,
+                                   const IState::SharedPtr &dst) {
+    for (const auto &src: _collection.get(src_regex)) {
         _transitions.emplace(trigger, Transition{src, dst});
     }
 }
@@ -55,8 +55,11 @@ IState::SharedPtr StateMachine::current() const {
     return _current_state;
 }
 StateMachine::StateMachine(IState::SharedPtr initial_state,
-                           StateTransitions::UniquePtr &&transitions)
-    : _current_state(std::move(initial_state)), _transitions(std::move(transitions)) {}
+                           StateTransitions::UniquePtr &&transitions,
+                           signal::SignalQueue<std::string>::SharedPtr signal_q)
+    : _current_state(std::move(initial_state)),
+      _transitions(std::move(transitions)),
+      _signal_q(std::move(signal_q)) {}
 void StateMachine::change_state(const std::string &trigger) {
     set_current_state(_transitions->next_state(_current_state, trigger));
 }

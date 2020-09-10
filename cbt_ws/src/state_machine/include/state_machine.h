@@ -6,6 +6,7 @@
 #define COCK_AND_BALL_CBT_WS_SRC_UTILS_INCLUDE_STATE_MACHINE_H_
 
 #include "cock_and_ball_exception.h"
+#include "signal_queue.hpp"
 
 #include <memory>
 #include <map>
@@ -27,6 +28,8 @@ class IState {
 
 class StateCollection {
  public:
+    using SharedPtr = std::shared_ptr<StateCollection>;
+
     StateCollection(std::initializer_list<IState::SharedPtr> &&states);
     [[nodiscard]] IState::SharedPtr get_one(const std::string &name) const;
     [[nodiscard]] std::vector<IState::SharedPtr> get(const std::regex &state_regex) const;
@@ -62,7 +65,8 @@ class StateMachine {
  public:
     StateMachine() = delete;
     explicit StateMachine(IState::SharedPtr initial_state,
-                          StateTransitions::UniquePtr &&transitions);
+                          StateTransitions::UniquePtr &&transitions,
+                          signal::SignalQueue<std::string>::SharedPtr signal_q);
 
     [[nodiscard]] IState::SharedPtr current() const;
     void change_state(const std::string &trigger);
@@ -72,6 +76,7 @@ class StateMachine {
 
     IState::SharedPtr _current_state;
     StateTransitions::UniquePtr _transitions;
+    signal::SignalQueue<std::string>::SharedPtr _signal_q;
 };
 }  // namespace state_machine
 }  // namespace cock_and_ball
