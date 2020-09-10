@@ -6,13 +6,17 @@
 #define COCK_AND_BALL_CBT_WS_SRC_ABSTRACT_NODES_INCLUDE_ABSTRACT_ACTION_SERVER_H_
 
 #include "abstract_node.h"
+#include "abstract_action_state.hpp"
 #include "state_machine.h"
 
 #include <rclcpp_action/rclcpp_action.hpp>
 
 namespace cock_and_ball {
 namespace abstract {
-template<class ActionT>
+template<class ActionT,
+    class Goal = typename ActionT::Goal,
+    class Result = typename ActionT::Result,
+    class Feedback = typename ActionT::Feedback>
 class AbstractActionServer : public AbstractNode {
  public:
     using GoalHandle = rclcpp_action::ServerGoalHandle<ActionT>;
@@ -30,18 +34,28 @@ class AbstractActionServer : public AbstractNode {
             _description->name(),
             [this](const rclcpp_action::GoalUUID &uuid,
                    std::shared_ptr<typename ActionT::Goal> goal) {
-                info("Received goal request with order %d", goal->order);
-                (void) uuid;
-                return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+                executor::Job job{_executor.lock()};
+                debug({uuid.begin(), uuid.end()});
+                info("Received goal request" + goal->repr());
+                if (_machine.current()->name() == "WaitingCommand") {
+                    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+                }
+                return rclcpp_action::GoalResponse::REJECT;
             },
             [this](GoalHandleSharedPtr goal_handle) {
                 (void) goal_handle;
+                executor::Job job{_executor.lock()};
                 info("Received request to cancel goal");
-                return rclcpp_action::CancelResponse::ACCEPT;
+                if (std::regex_match(_machine.current()->name(), std::regex{".*Executing.*"})) {
+                    _trigger_q->emit("cancel");
+                    return rclcpp_action::CancelResponse::ACCEPT;
+                }
+                return rclcpp_action::CancelResponse::REJECT;
             },
             [this](GoalHandleSharedPtr goal_handle) {
-                (void) goal_handle;
-                std::thread{[this]() { execute(); }}.detach(); // TASK?
+                executor::Job job{_executor.lock()};
+                _current_task.join();
+                _current_task = std::thread{[this, &goal_handle]() { execute(goal_handle); }}; // TASK?
             },
             rcl_action_server_get_default_options(),
             _cb_group
@@ -49,39 +63,25 @@ class AbstractActionServer : public AbstractNode {
     };
 
     void execute(GoalHandleSharedPtr goal_handle) {
+        executor::Job job{_executor.lock()};
         info("Executing goal");
-        rclcpp::Rate loop_rate(1);
-        const auto goal = goal_handle->get_goal();
-        auto feedback = std::make_shared<typename ActionT::Feedback>();
-        auto &sequence = feedback->sequence;
-        sequence.push_back(0);
-        sequence.push_back(1);
-        auto result = std::make_shared<typename ActionT::Result>();
-
-        for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
-            // Check if there is a cancel request
-            if (goal_handle->is_canceling()) {
-                result->sequence = sequence;
-                goal_handle->canceled(result);
-                info("Goal Canceled");
-                return;
-            }
-            // Update sequence
-            sequence.push_back(sequence[i] + sequence[i - 1]);
-            // Publish feedback
-            goal_handle->publish_feedback(feedback);
-            info("Publish Feedback");
-
-            loop_rate.sleep();
+        _goal_q->emit(goal_handle->get_goal());
+        _machine.change_state("execute");
+        while (not _result_q->ready()) {
+            auto *current = dynamic_cast<IActionState<ActionT> *>(_machine.current().get());
+            current->execute();
         }
-
-        // Check if goal is done
-        if (rclcpp::ok()) {
-            result->sequence = sequence;
-            goal_handle->succeed(result);
-            info("Goal Succeeded");
-        }
+        auto result = _result_q.dispatch_signal();
+        goal_handle->succeed(result);
     }
+
+ protected:
+    typename IActionState<ActionT>::TriggerQ _trigger_q;
+    typename IActionState<ActionT>::GoalQ _goal_q;
+    typename IActionState<ActionT>::ResultQ _result_q;
+    typename IActionState<ActionT>::FeedbackQ _fb_q;
+    state_machine::StateMachine _machine;
+    std::thread _current_task;
 };
 }  // namespace abstract
 }  // namespace cock_and_ball

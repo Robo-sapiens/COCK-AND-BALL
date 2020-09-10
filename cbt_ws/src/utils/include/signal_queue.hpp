@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <deque>
+#include <mutex>
 
 
 namespace cock_and_ball {
@@ -18,18 +19,22 @@ class SignalQueue {
     SignalQueue() = default;
 
     void emit(SignalT &&signal) {
+        std::lock_guard q_lock{_mutex};
         _q.push_back(std::move(signal));
     }
     SignalT dispatch_signal() {
+        std::lock_guard q_lock{_mutex};
         auto signal = _q.front();
         _q.pop_front();
         return signal;
     }
     bool ready() const {
+        std::lock_guard q_lock{_mutex};
         return not _q.empty();
     }
  private:
     std::deque<SignalT> _q;
+    std::mutex _mutex;
 };
 }  // namespace signal
 }  // namespace cock_and_ball

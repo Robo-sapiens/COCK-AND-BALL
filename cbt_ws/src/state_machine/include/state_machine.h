@@ -28,6 +28,8 @@ class IState {
 
 class StateCollection {
  public:
+    using SharedPtr = std::shared_ptr<StateCollection>;
+
     StateCollection(std::initializer_list<IState::SharedPtr> &&states);
     [[nodiscard]] IState::SharedPtr get_one(const std::string &name) const;
     [[nodiscard]] std::vector<IState::SharedPtr> get(const std::regex &state_regex) const;

@@ -24,11 +24,12 @@ add_library(abstract_nodes SHARED
         src/abstract_node.cpp
         src/abstract_node_description.cpp
         src/abstract_node_exception.cpp
-        src/abstract_action_state.cpp
         include/abstract_request.hpp
         include/abstract_service.hpp
         include/abstract_service_client.hpp
-        include/abstract_action_server.hpp)
+        include/abstract_action_state.hpp
+        include/abstract_action_server.hpp
+        include/abstract_action.hpp)
 
 target_link_libraries(abstract_nodes PUBLIC
         ${rclcpp_LIBRARIES}
